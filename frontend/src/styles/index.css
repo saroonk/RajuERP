@@ -1,0 +1,200 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    /* The floating header is sticky: keep scrolled-to and focused elements clear of it. */
+    scroll-padding-top: 6rem;
+  }
+  body {
+    @apply bg-surface font-sans text-sm text-neutral-900 antialiased;
+    overflow-x: hidden;
+    /* Layered backdrop: two soft colour washes over a cool light base give the floating cards something to float on. */
+    background-image:
+      radial-gradient(900px 520px at 8% -8%, rgba(99, 125, 255, 0.10), transparent 62%),
+      radial-gradient(760px 480px at 100% 4%, rgba(56, 189, 248, 0.09), transparent 60%),
+      radial-gradient(900px 600px at 70% 110%, rgba(148, 163, 184, 0.16), transparent 62%);
+    background-attachment: fixed;
+    font-feature-settings: 'cv11', 'ss03';
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3 {
+    @apply tracking-tight;
+  }
+  ::selection {
+    @apply bg-neutral-900 text-white;
+  }
+  /* Comfortable touch targets on phones, compact on desktop. */
+  input, select, textarea {
+    font-size: 16px;
+  }
+  @media (min-width: 768px) {
+    input, select, textarea {
+      font-size: 0.8125rem;
+    }
+  }
+  /* Keyboard focus: a clear ring for buttons and links, a soft halo plus dark border for form controls. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-neutral-900/80 ring-offset-2 ring-offset-white;
+  }
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    @apply border-neutral-900 ring-[3px] ring-neutral-900/10 ring-offset-0;
+  }
+  /* Native selects get one consistent chevron instead of each browser's own arrow. */
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2371717a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5.5 7.5 4.5 4.5 4.5-4.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    background-size: 1rem;
+  }
+  select:disabled {
+    background-image: none;
+  }
+  input[type='checkbox'] {
+    @apply cursor-pointer rounded;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full border-[3px] border-solid border-transparent bg-neutral-300 bg-clip-content;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-neutral-400;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  .scroll-thin {
+    scrollbar-width: thin;
+  }
+  /* Floating white card: hairline ring + layered soft shadow. Used by cards, tables and detail panels. */
+  .surface {
+    @apply rounded-2xl bg-white shadow-card ring-1 ring-slate-900/[0.05];
+  }
+  /* Frosted-glass panel for the header, menus and overlays. */
+  .glass {
+    @apply bg-white/70 shadow-card ring-1 ring-white/70 backdrop-blur-xl backdrop-saturate-150;
+  }
+}
+
+/* Charts (Recharts): glass tooltip, readable legend and cursor that match the rest of the interface.
+   Kept outside @layer so they are always emitted (Tailwind drops layered classes that never appear in source). */
+.recharts-default-tooltip {
+  border: 0 !important;
+  border-radius: 0.875rem !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  padding: 0.65rem 0.9rem !important;
+  font-size: 0.75rem !important;
+  box-shadow: 0 20px 48px -12px rgba(15, 23, 42, 0.28), 0 4px 12px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.05) !important;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+.recharts-tooltip-label {
+  margin-bottom: 0.4rem !important;
+  font-weight: 600;
+  color: #0f172a;
+}
+.recharts-tooltip-cursor {
+  fill: rgba(15, 23, 42, 0.04);
+}
+.recharts-legend-item-text {
+  color: #475569 !important;
+  font-size: 12px;
+  font-weight: 500;
+}
+.recharts-cartesian-axis-tick-value {
+  fill: #64748b;
+}
+
+/* Printable documents (invoices, receipts): hide app chrome, show only .print-area. */
+@media print {
+  @page {
+    margin: 12mm;
+  }
+  body {
+    background: #fff !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-area {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+
+  /* Let the document flow across pages instead of being clipped to one screen. */
+  html,
+  body {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  * {
+    scrollbar-width: none !important;
+  }
+  *::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  /* Invoice table: drop the on-screen horizontal scroll and fit the page width. */
+  .invoice-scroll {
+    overflow: visible !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  .invoice-table {
+    min-width: 0 !important;
+    width: 100% !important;
+    font-size: 10px !important;
+    line-height: 1.3 !important;
+  }
+  .invoice-table th,
+  .invoice-table td {
+    padding: 4px 4px !important;
+  }
+  /* Codes and numbers stay on one line; only the product name may wrap (even mid-word if very long). */
+  .invoice-table th,
+  .invoice-table td:not(:nth-child(2)) {
+    white-space: nowrap;
+  }
+  .invoice-table td:nth-child(2) {
+    overflow-wrap: anywhere;
+  }
+  .invoice-table thead {
+    display: table-header-group; /* repeat the header on every page */
+  }
+  .invoice-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .print-area dl,
+  .print-area tfoot {
+    break-inside: avoid;
+  }
+}
+.print-only {
+  display: none;
+}

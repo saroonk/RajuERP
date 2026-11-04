@@ -1,0 +1,41 @@
+# ---- Secrets and local configuration (use the committed .env.example files as templates) ----
+.env
+.env.*
+!.env.example
+
+# ---- Local databases (development data never goes to the repository) ----
+*.sqlite3
+*.sqlite3-journal
+*.db
+
+# ---- Python / Django ----
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+staticfiles/
+media/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ---- Node / frontend ----
+node_modules/
+dist/
+.vite/
+coverage/
+*.tsbuildinfo
+
+# ---- Logs and temporary files ----
+*.log
+npm-debug.log*
+*.tmp
+*.bak
+
+# ---- Editors, OS and assistant-local files ----
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+.claude/settings.local.json
