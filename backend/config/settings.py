@@ -81,14 +81,35 @@ TEMPLATES = [
     }
 ]
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / os.environ.get("SQLITE_PATH", "db.sqlite3"),
-        # SQLite serialises writers; a short wait avoids spurious "database is locked" errors in dev.
-        "OPTIONS": {"timeout": 20},
+# Database: SQLite for local development; PostgreSQL (Neon) whenever DATABASE_URL is set.
+# DATABASE_URL comes only from the environment (never commit it). Use Neon's *pooled* (PgBouncer) connection string
+# for the running app; run migrations with the direct, non-pooled string.
+DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+
+if DATABASE_URL:
+    import dj_database_url
+
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            # Serverless: open a connection per request and close it, instead of holding idle connections
+            # on every function instance.
+            conn_max_age=0,
+            # Neon requires TLS.
+            ssl_require=True,
+        )
     }
-}
+    # PgBouncer in transaction mode cannot keep server-side cursors (used by queryset.iterator()) alive.
+    DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = True
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / os.environ.get("SQLITE_PATH", "db.sqlite3"),
+            # SQLite serialises writers; a short wait avoids spurious "database is locked" errors in dev.
+            "OPTIONS": {"timeout": 20},
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
